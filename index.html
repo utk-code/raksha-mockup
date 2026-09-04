@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0f1724">
+  <title>RAKSHA | Command Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 28 28" fill="none" width="22" height="22"><path d="M14 2L3 8v12l11 6 11-6V8L14 2z" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M14 2v24M3 8l11 6 11-6" stroke="currentColor" stroke-width="1.5"/></svg>
+    </div>
+    <div class="brand-text">
+      <div class="brand-name">RAKSHA</div>
+      <div class="brand-desc">Risk-Aware Knowledge &<br>Safe Habitation Allocation</div>
+    </div>
+  </div>
+
+  <div class="sidebar-mode">
+    <span class="mode-dot"></span>
+    <div>
+      <div class="mode-label">SCENARIO MODE</div>
+      <div class="mode-sub">Controlled demonstration data</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav" id="sidebarNav">
+    <a class="nav-item active" data-page="dashboard" href="#"><i data-lucide="layout-dashboard"></i><span>Command Dashboard</span></a>
+    <a class="nav-item" data-page="map" href="#"><i data-lucide="map"></i><span>Risk Map</span></a>
+    <a class="nav-item" data-page="habitations" href="#"><i data-lucide="building-2"></i><span>Habitations</span></a>
+    <a class="nav-item" data-page="sites" href="#"><i data-lucide="shield-check"></i><span>Safe Sites</span></a>
+    <a class="nav-item" data-page="plan" href="#"><i data-lucide="route"></i><span>Relocation Plan</span></a>
+    <a class="nav-item" data-page="alerts" href="#"><i data-lucide="triangle-alert"></i><span>Alerts</span><span class="nav-badge" id="navAlertBadge">3</span></a>
+    <a class="nav-item" data-page="analytics" href="#"><i data-lucide="bar-chart-3"></i><span>Analytics</span></a>
+    <a class="nav-item" data-page="reports" href="#"><i data-lucide="file-text"></i><span>Reports</span></a>
+    <a class="nav-item" data-page="data" href="#"><i data-lucide="database"></i><span>Data Layers</span></a>
+    <a class="nav-item" data-page="settings" href="#"><i data-lucide="settings"></i><span>Settings</span></a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-footer-label">STUDY AREA</div>
+    <select class="sidebar-select" id="region">
+      <option>Uttarakhand · Chamoli</option>
+      <option>Uttarakhand · Rudraprayag</option>
+      <option>Uttarakhand · Pithoragarh</option>
+    </select>
+    <div class="sidebar-data-state">
+      <div class="data-state-row">
+        <span class="data-state-dot"></span>
+        <span>Scenario loaded</span>
+      </div>
+      <div class="data-state-time">20 May 2025 · 10:30 IST</div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main area -->
+<div class="main-area">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="topbar-menu-btn" id="menuBtn" aria-label="Toggle sidebar">
+        <i data-lucide="menu"></i>
+      </button>
+      <div class="breadcrumb">
+        <span class="bc-section">DISASTER MANAGEMENT</span>
+        <i data-lucide="chevron-right" class="bc-sep"></i>
+        <strong class="bc-page" id="bcPage">COMMAND DASHBOARD</strong>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="scenario-select-wrap">
+        <label class="scenario-label">SCENARIO</label>
+        <select class="scenario-select" id="scenarioSelect">
+          <option value="rain">Heavy Rainfall · Chamoli</option>
+          <option value="landslide">Landslide Escalation · Chamoli</option>
+          <option value="river">River Level Rise · Chamoli</option>
+        </select>
+      </div>
+      <div class="topbar-weather">
+        <i data-lucide="cloud-rain" class="weather-icon"></i>
+        <div><strong>24°C</strong><span>Light rain</span></div>
+      </div>
+      <button class="topbar-bell" data-page="alerts" aria-label="Alerts">
+        <i data-lucide="bell"></i>
+        <span class="bell-count" id="bellCount">3</span>
+      </button>
+      <div class="topbar-user">
+        <div class="user-avatar">SA</div>
+        <div class="user-info">
+          <strong>SDMA User</strong>
+          <span>State Authority</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-content" id="pageContent">
+
+    <!-- ========== DASHBOARD ========== -->
+    <section class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-overline">DECISION SUPPORT · NOT AN EVACUATION ORDER</div>
+          <h1 class="page-title">Command Dashboard</h1>
+          <p class="page-subtitle">Turn hazard signals into prioritized, capacity-aware relocation actions.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-outline" id="scenarioInfoBtn">Scenario details</button>
+          <button class="btn btn-primary" id="runScenarioBtn">Evaluate scenario</button>
+        </div>
+      </div>
+
+      <!-- KPI Strip -->
+      <div class="kpi-strip" id="kpiStrip">
+        <div class="kpi-card">
+          <div class="kpi-label">HABITATIONS AT RISK</div>
+          <div class="kpi-value" id="kpiRisk">152</div>
+          <div class="kpi-sub kpi-sub-accent">across Chamoli</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">P1 · IMMEDIATE</div>
+          <div class="kpi-value kpi-red" id="kpiP1">48</div>
+          <div class="kpi-sub">32,450 population</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">P2 · SHORT-TERM</div>
+          <div class="kpi-value kpi-orange" id="kpiP2">62</div>
+          <div class="kpi-sub">46,780 population</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">P3 · MEDIUM-TERM</div>
+          <div class="kpi-value kpi-amber" id="kpiP3">42</div>
+          <div class="kpi-sub">45,630 population</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">POPULATION AT RISK</div>
+          <div class="kpi-value" id="kpiPop">1,24,860</div>
+          <div class="kpi-sub">total exposure</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">SAFE CAPACITY</div>
+          <div class="kpi-value" id="kpiCap">2,18,650</div>
+          <div class="kpi-sub" id="kpiCapSub">54% utilized · 29 of 36 sites</div>
+        </div>
+      </div>
+
+      <!-- Main workspace: Map + Intelligence -->
+      <div class="workspace">
+        <div class="workspace-map">
+          <div class="map-toolbar">
+            <div class="map-tabs">
+              <button class="map-tab active" data-view="hazard">Hazard</button>
+              <button class="map-tab" data-view="population">Population</button>
+              <button class="map-tab" data-view="routes">Routes</button>
+            </div>
+            <div class="map-controls">
+              <button class="map-ctrl" id="layerToggleBtn" aria-label="Toggle layers">
+                <i data-lucide="layers"></i>
+              </button>
+              <button class="map-ctrl" id="mapFullscreenBtn" aria-label="Fullscreen">
+                <i data-lucide="maximize-2"></i>
+              </button>
+            </div>
+          </div>
+          <div class="map-container" id="mainMap"></div>
+          <div class="map-legend">
+            <div class="legend-title">LEGEND</div>
+            <div class="legend-item"><span class="legend-dot legend-dot-red"></span>P1 · Immediate</div>
+            <div class="legend-item"><span class="legend-dot legend-dot-orange"></span>P2 · Short-term</div>
+            <div class="legend-item"><span class="legend-dot legend-dot-amber"></span>P3 · Medium-term</div>
+            <div class="legend-item"><span class="legend-dot legend-dot-green"></span>Safe site</div>
+            <div class="legend-item"><span class="legend-line legend-line-red"></span>Hazard zone</div>
+          </div>
+          <!-- Layer panel -->
+          <div class="layer-panel" id="layerPanel">
+            <div class="layer-panel-title">MAP LAYERS</div>
+            <label class="layer-toggle"><input type="checkbox" checked data-layer="hazard"><span class="toggle-track"><span class="toggle-thumb"></span></span>Hazard zones</label>
+            <label class="layer-toggle"><input type="checkbox" checked data-layer="habitations"><span class="toggle-track"><span class="toggle-thumb"></span></span>Habitations</label>
+            <label class="layer-toggle"><input type="checkbox" checked data-layer="sites"><span class="toggle-track"><span class="toggle-thumb"></span></span>Safe sites</label>
+            <label class="layer-toggle"><input type="checkbox" checked data-layer="roads"><span class="toggle-track"><span class="toggle-thumb"></span></span>Roads</label>
+            <label class="layer-toggle"><input type="checkbox" checked data-layer="rivers"><span class="toggle-track"><span class="toggle-thumb"></span></span>Rivers</label>
+            <label class="layer-toggle"><input type="checkbox" checked data-layer="boundary"><span class="toggle-track"><span class="toggle-thumb"></span></span>District boundary</label>
+          </div>
+        </div>
+
+        <aside class="intel-panel" id="intelPanel">
+          <div class="intel-head">
+            <div class="intel-selected-name" id="selName">Sail Gaon</div>
+            <span class="priority p1" id="selPriority">P1 · Immediate</span>
+          </div>
+          <div class="intel-body">
+            <div class="intel-section">
+              <div class="intel-row-main">
+                <span class="intel-label">Population</span>
+                <strong id="selPop">2,350</strong>
+              </div>
+              <div class="intel-row-main">
+                <span class="intel-label">Risk Score</span>
+                <div class="risk-score-display">
+                  <span class="risk-num" id="selScore">92</span>
+                  <span class="risk-of">/ 100</span>
+                  <span class="risk-badge risk-high" id="selRiskBadge">HIGH</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="intel-divider"></div>
+
+            <div class="intel-section">
+              <div class="intel-section-title">WHY IS THIS <span id="selWhyP">P1</span>?</div>
+              <div class="intel-factor">
+                <span class="factor-label">Flood exposure</span>
+                <span class="factor-badge badge-high" id="selFlood">HIGH</span>
+              </div>
+              <div class="intel-factor">
+                <span class="factor-label">Population vulnerability</span>
+                <span class="factor-badge badge-high" id="selVuln">HIGH</span>
+              </div>
+              <div class="intel-factor">
+                <span class="factor-label">Medical access</span>
+                <span class="factor-badge badge-poor" id="selMedical">POOR</span>
+              </div>
+              <div class="intel-factor">
+                <span class="factor-label">Road access</span>
+                <span class="factor-badge badge-constrained" id="selRoad">ONE-WAY</span>
+              </div>
+            </div>
+
+            <div class="intel-divider"></div>
+
+            <div class="intel-section">
+              <div class="intel-section-title">RECOMMENDED DESTINATION</div>
+              <div class="dest-card">
+                <div class="dest-name" id="destName">Govt. Inter College Ground</div>
+                <div class="dest-meta">
+                  <span><i data-lucide="navigation" class="meta-icon"></i><span id="destDist">12.6 km</span></span>
+                  <span><i data-lucide="clock" class="meta-icon"></i><span id="destTime">35 min</span></span>
+                </div>
+                <div class="dest-capacity">
+                  <div class="cap-header">
+                    <span>Capacity <strong id="destCap">12,500</strong></span>
+                    <span><strong id="destUsed">5,350</strong> utilized</span>
+                  </div>
+                  <div class="cap-bar">
+                    <div class="cap-bar-fill" id="destBarFill" style="width:43%"></div>
+                  </div>
+                  <div class="cap-footer">
+                    <span><strong id="destAvail">7,150</strong> available</span>
+                    <span id="destUtil">43% utilized</span>
+                  </div>
+                </div>
+                <button class="btn btn-outline btn-sm btn-block" id="routeBtn">
+                  <i data-lucide="route"></i>
+                  View prototype route
+                </button>
+              </div>
+            </div>
+
+            <div class="intel-divider"></div>
+
+            <div class="intel-section">
+              <div class="intel-decision">
+                <i data-lucide="check-circle" class="decision-icon"></i>
+                <div>
+                  <strong>Recommended action</strong>
+                  <p>Prioritize immediate relocation assessment within 0–72 hours, subject to field verification.</p>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn btn-outline btn-block" id="evidenceBtn">
+              <i data-lucide="scan-eye"></i>
+              Evidence trail
+            </button>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Lower section -->
+      <div class="lower-grid">
+        <section class="panel">
+          <div class="panel-header">
+            <div><h2 class="panel-title">Priority distribution</h2><span class="panel-subtitle">152 identified habitations</span></div>
+            <button class="btn btn-xs btn-ghost" data-page="habitations">View all</button>
+          </div>
+          <div class="priority-dist">
+            <div class="priority-donut">
+              <svg viewBox="0 0 120 120" class="donut-svg">
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#1e2d3d" stroke-width="14"/>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="var(--p1)" stroke-width="14" stroke-dasharray="95.5 205.5" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="var(--p2)" stroke-width="14" stroke-dasharray="122 179" stroke-dashoffset="-95.5" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="var(--p3)" stroke-width="14" stroke-dasharray="82.3 218.7" stroke-dashoffset="-217.5" transform="rotate(-90 60 60)"/>
+                <text x="60" y="56" text-anchor="middle" class="donut-num">152</text>
+                <text x="60" y="72" text-anchor="middle" class="donut-label">Total</text>
+              </svg>
+            </div>
+            <div class="priority-bars">
+              <div class="pbar-row">
+                <span><span class="dot dot-red"></span>P1 · Immediate</span>
+                <strong>48</strong>
+                <div class="pbar"><div class="pbar-fill pbar-red" style="width:77%"></div></div>
+              </div>
+              <div class="pbar-row">
+                <span><span class="dot dot-orange"></span>P2 · Short-term</span>
+                <strong>62</strong>
+                <div class="pbar"><div class="pbar-fill pbar-orange" style="width:100%"></div></div>
+              </div>
+              <div class="pbar-row">
+                <span><span class="dot dot-amber"></span>P3 · Medium-term</span>
+                <strong>42</strong>
+                <div class="pbar"><div class="pbar-fill pbar-amber" style="width:68%"></div></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div><h2 class="panel-title">Safe-site capacity</h2><span class="panel-subtitle">Current scenario allocation</span></div>
+            <button class="btn btn-xs btn-ghost" data-page="sites">View all</button>
+          </div>
+          <div class="cap-table">
+            <table>
+              <thead>
+                <tr><th>Site</th><th>Usable</th><th>Used</th><th>Available</th><th>Use</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Govt. Inter College Ground</td><td class="num">12,500</td><td class="num">5,350</td><td class="num num-strong">7,150</td><td class="util-cell"><div class="mini-bar"><div style="width:43%"></div></div><span>43%</span></td></tr>
+                <tr><td>Horticulture Farm</td><td class="num">8,200</td><td class="num">4,674</td><td class="num num-strong">3,526</td><td class="util-cell"><div class="mini-bar"><div style="width:57%"></div></div><span>57%</span></td></tr>
+                <tr><td>Naini Bagar Field</td><td class="num">6,800</td><td class="num">2,584</td><td class="num num-strong">4,216</td><td class="util-cell"><div class="mini-bar"><div style="width:38%"></div></div><span>38%</span></td></tr>
+                <tr><td>Sports Stadium</td><td class="num">14,000</td><td class="num">8,820</td><td class="num num-strong">5,180</td><td class="util-cell"><div class="mini-bar"><div style="width:63%"></div></div><span>63%</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- Alert preview -->
+      <section class="panel alert-preview">
+        <div class="panel-header">
+          <div><h2 class="panel-title">Active alerts</h2><span class="panel-subtitle">Current scenario alerts</span></div>
+          <button class="btn btn-xs btn-ghost" data-page="alerts">View all</button>
+        </div>
+        <div class="alert-feed" id="dashAlertFeed"></div>
+      </section>
+    </section>
+
+    <!-- ========== RISK MAP ========== -->
+    <section class="page" id="page-map">
+      <div class="page-header page-header-compact">
+        <div>
+          <h1 class="page-title">Risk Map</h1>
+          <p class="page-subtitle">Spatial intelligence across Chamoli district</p>
+        </div>
+      </div>
+      <div class="map-full">
+        <div class="map-container" id="fullMap"></div>
+        <div class="map-legend map-legend-overlay">
+          <div class="legend-title">LEGEND</div>
+          <div class="legend-item"><span class="legend-dot legend-dot-red"></span>P1 · Immediate</div>
+          <div class="legend-item"><span class="legend-dot legend-dot-orange"></span>P2 · Short-term</div>
+          <div class="legend-item"><span class="legend-dot legend-dot-amber"></span>P3 · Medium-term</div>
+          <div class="legend-item"><span class="legend-dot legend-dot-green"></span>Safe site</div>
+          <div class="legend-item"><span class="legend-line legend-line-red"></span>Hazard zone</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== HABITATIONS ========== -->
+    <section class="page" id="page-habitations">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Habitations</h1>
+          <p class="page-subtitle">Operational data workspace — all identified habitations</p>
+        </div>
+      </div>
+      <div class="table-toolbar">
+        <div class="search-wrap">
+          <i data-lucide="search" class="search-icon"></i>
+          <input type="text" class="search-input" id="habSearch" placeholder="Search habitations...">
+        </div>
+        <div class="filter-group">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="P1">P1</button>
+          <button class="filter-btn" data-filter="P2">P2</button>
+          <button class="filter-btn" data-filter="P3">P3</button>
+        </div>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table" id="habTable">
+          <thead>
+            <tr>
+              <th>Priority</th>
+              <th>Habitation</th>
+              <th class="num">Risk Score</th>
+              <th class="num">Population</th>
+              <th>Flood</th>
+              <th>Vulnerability</th>
+              <th>Medical</th>
+              <th>Road</th>
+              <th>Destination</th>
+              <th class="num">Distance</th>
+            </tr>
+          </thead>
+          <tbody id="habTableBody"></tbody>
+        </table>
+      </div>
+      <div class="table-footer" id="habTableFooter">Showing 5 of 5 habitations</div>
+    </section>
+
+    <!-- ========== SAFE SITES ========== -->
+    <section class="page" id="page-sites">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Safe Sites</h1>
+          <p class="page-subtitle">Capacity management workspace — current scenario allocation</p>
+        </div>
+      </div>
+      <div class="sites-grid" id="sitesGrid"></div>
+    </section>
+
+    <!-- ========== RELOCATION PLAN ========== -->
+    <section class="page" id="page-plan">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Relocation Plan</h1>
+          <p class="page-subtitle">Phased operational sequence — origin → destination</p>
+        </div>
+      </div>
+      <div class="plan-timeline" id="planTimeline"></div>
+    </section>
+
+    <!-- ========== ALERTS ========== -->
+    <section class="page" id="page-alerts">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Alerts</h1>
+          <p class="page-subtitle">Current scenario alert feed</p>
+        </div>
+      </div>
+      <div class="alerts-feed" id="alertsFeed"></div>
+    </section>
+
+    <!-- ========== ANALYTICS ========== -->
+    <section class="page" id="page-analytics">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Analytics</h1>
+          <p class="page-subtitle">Decision-support intelligence — methodology and weightings</p>
+        </div>
+      </div>
+      <div class="analytics-grid">
+        <section class="panel">
+          <div class="panel-header"><div><h2 class="panel-title">Risk scoring methodology</h2><span class="panel-subtitle">Prototype weighting — configurable in production</span></div></div>
+          <div class="weighting-viz">
+            <div class="weight-bar-wrap">
+              <div class="weight-row"><span>Hazard / exposure</span><strong>45%</strong></div>
+              <div class="weight-bar"><div class="weight-fill weight-red" style="width:45%"></div></div>
+              <div class="weight-desc">Flood zone proximity, slope, rainfall intensity, river proximity</div>
+            </div>
+            <div class="weight-bar-wrap">
+              <div class="weight-row"><span>Population vulnerability</span><strong>30%</strong></div>
+              <div class="weight-bar"><div class="weight-fill weight-orange" style="width:30%"></div></div>
+              <div class="weight-desc">Population count, elderly/child ratio, density, accessibility</div>
+            </div>
+            <div class="weight-bar-wrap">
+              <div class="weight-row"><span>Access / service constraints</span><strong>15%</strong></div>
+              <div class="weight-bar"><div class="weight-fill weight-amber" style="width:15%"></div></div>
+              <div class="weight-desc">Road accessibility, medical facility proximity, communication links</div>
+            </div>
+            <div class="weight-bar-wrap">
+              <div class="weight-row"><span>Historical signal</span><strong>10%</strong></div>
+              <div class="weight-bar"><div class="weight-fill weight-slate" style="width:10%"></div></div>
+              <div class="weight-desc">Previous disaster events, recurrence pattern, seasonal vulnerability</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header"><div><h2 class="panel-title">Decision flow</h2><span class="panel-subtitle">Raksha decision chain</span></div></div>
+          <div class="decision-flow">
+            <div class="flow-node flow-hazard"><i data-lucide="cloud-rain"></i><span>HAZARD</span></div>
+            <div class="flow-arrow"><i data-lucide="chevron-right"></i></div>
+            <div class="flow-node flow-vuln"><i data-lucide="users"></i><span>VULNERABILITY</span></div>
+            <div class="flow-arrow"><i data-lucide="chevron-right"></i></div>
+            <div class="flow-node flow-score"><i data-lucide="target"></i><span>RISK SCORE</span></div>
+            <div class="flow-arrow"><i data-lucide="chevron-right"></i></div>
+            <div class="flow-node flow-cap"><i data-lucide="bar-chart"></i><span>CAPACITY</span></div>
+            <div class="flow-arrow"><i data-lucide="chevron-right"></i></div>
+            <div class="flow-node flow-dest"><i data-lucide="map-pin"></i><span>DESTINATION</span></div>
+            <div class="flow-arrow"><i data-lucide="chevron-right"></i></div>
+            <div class="flow-node flow-action"><i data-lucide="play"></i><span>ROUTE + PHASE</span></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header"><div><h2 class="panel-title">Risk distribution</h2><span class="panel-subtitle">Score range across habitations</span></div></div>
+          <div class="analytics-dist" id="analyticsDist"></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ========== REPORTS ========== -->
+    <section class="page" id="page-reports">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Reports</h1>
+          <p class="page-subtitle">Institutional report preview — printable</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" id="printReportBtn"><i data-lucide="printer"></i> Print / Save PDF</button>
+        </div>
+      </div>
+      <div class="report-preview" id="reportPreview"></div>
+    </section>
+
+    <!-- ========== DATA LAYERS ========== -->
+    <section class="page" id="page-data">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Data Layers</h1>
+          <p class="page-subtitle">Architecture and data transparency</p>
+        </div>
+      </div>
+      <div class="data-layers-grid">
+        <div class="data-layer-card data-layer-active">
+          <div class="layer-card-header">
+            <span class="layer-status layer-status-active">SCENARIO</span>
+            <i data-lucide="check-circle"></i>
+          </div>
+          <h3>Chamoli Heavy Rainfall</h3>
+          <p>Hazard zones, population vulnerability, road constraints, safe-site capacity. All values are hardcoded scenario data.</p>
+          <div class="layer-meta">
+            <span>Population: 1,24,860</span>
+            <span>Habitations: 152</span>
+            <span>Sites: 36</span>
+          </div>
+        </div>
+        <div class="data-layer-card data-layer-active">
+          <div class="layer-card-header">
+            <span class="layer-status layer-status-active">SCENARIO</span>
+            <i data-lucide="check-circle"></i>
+          </div>
+          <h3>Landslide Escalation</h3>
+          <p>Modifies hazard exposure profile. Road constraints increase. Population at risk shifts.</p>
+          <div class="layer-meta">
+            <span>Population: 1,29,420</span>
+            <span>Habitations: 160</span>
+          </div>
+        </div>
+        <div class="data-layer-card data-layer-active">
+          <div class="layer-card-header">
+            <span class="layer-status layer-status-active">SCENARIO</span>
+            <i data-lucide="check-circle"></i>
+          </div>
+          <h3>River Level Rise</h3>
+          <p>River exposure elevates. Flood zones expand downstream. Capacity utilization increases.</p>
+          <div class="layer-meta">
+            <span>Population: 1,27,180</span>
+            <span>Habitations: 157</span>
+          </div>
+        </div>
+        <div class="data-layer-card data-layer-planned">
+          <div class="layer-card-header">
+            <span class="layer-status layer-status-planned">PLANNED</span>
+            <i data-lucide="clock"></i>
+          </div>
+          <h3>Real-time IMD feeds</h3>
+          <p>Production integration with India Meteorological Department rainfall, wind, and warning APIs.</p>
+        </div>
+        <div class="data-layer-card data-layer-planned">
+          <div class="layer-card-header">
+            <span class="layer-status layer-status-planned">PLANNED</span>
+            <i data-lucide="clock"></i>
+          </div>
+          <h3>OpenStreetMap roads</h3>
+          <p>Live road network data for dynamic routing and accessibility assessment.</p>
+        </div>
+        <div class="data-layer-card data-layer-planned">
+          <div class="layer-card-header">
+            <span class="layer-status layer-status-planned">PLANNED</span>
+            <i data-lucide="clock"></i>
+          </div>
+          <h3>Population census data</h3>
+          <p>Granular habitation-level census data for vulnerability assessment.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SETTINGS ========== -->
+    <section class="page" id="page-settings">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Settings</h1>
+          <p class="page-subtitle">Prototype configuration — presentation controls only</p>
+        </div>
+      </div>
+      <div class="settings-grid">
+        <div class="panel">
+          <div class="panel-header"><div><h2 class="panel-title">Display</h2></div></div>
+          <div class="settings-list">
+            <div class="setting-row">
+              <div><strong>Compact density</strong><span>Reduce spacing for denser information display</span></div>
+              <label class="switch"><input type="checkbox" id="settingCompact"><span class="switch-track"><span class="switch-thumb"></span></span></label>
+            </div>
+            <div class="setting-row">
+              <div><strong>Reduced motion</strong><span>Minimize animations for accessibility</span></div>
+              <label class="switch"><input type="checkbox" id="settingReducedMotion"><span class="switch-track"><span class="switch-thumb"></span></span></label>
+            </div>
+            <div class="setting-row">
+              <div><strong>Show scenario banner</strong><span>Display the controlled data disclosure in the header</span></div>
+              <label class="switch"><input type="checkbox" checked id="settingBanner"><span class="switch-track"><span class="switch-thumb"></span></span></label>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div><h2 class="panel-title">Prototype disclosure</h2></div></div>
+          <div class="settings-disclosure">
+            <p>This application is a <strong>controlled scenario demonstration</strong> for SIH 2026 Problem Statement 26191.</p>
+            <p>All data is hardcoded. No live data feeds, no backend, no API keys. The system demonstrates the intended decision workflow.</p>
+            <p>Production systems would integrate real hazard, population, infrastructure, and safe-site data with documented validation pipelines.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /page-content -->
+</div><!-- /main-area -->
+
+<!-- Evidence Drawer -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-header">
+    <h2 class="drawer-title" id="drawerTitle">Evidence Trail</h2>
+    <button class="drawer-close" id="drawerClose" aria-label="Close drawer"><i data-lucide="x"></i></button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
